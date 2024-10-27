@@ -1,0 +1,9 @@
+﻿The Shire,0,true
+Bree,25,true
+Rivendel,60,true
+Edoras,33,true
+Helm's Deep,5,false
+Isengard,30,true
+Minas Tirith,28,true
+Minas Morgul,8,false
+Mount Doom,38,true

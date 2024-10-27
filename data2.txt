@@ -1,0 +1,8 @@
+﻿The Shire(stop),Bree(stop),25
+Bree(stop),Rivendel(stop),60
+Rivendel(stop),Edoras(stop),33
+Edoras(stop),Helm's Deep(transit),5
+Helm's Deep(transit),Isengard(stop),30
+Isengard(stop),Minas Tirith(stop),28
+Minas Tirith(stop),Minas Morgul(transit),8
+Minas Morgul(transit),Mount Doom(stop),38

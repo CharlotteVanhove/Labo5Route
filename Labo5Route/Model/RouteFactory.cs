@@ -41,16 +41,20 @@ namespace Labo5Route.Model
                             string location2 = parts[1].Split('(')[0].Trim();
                             double distance = double.Parse(parts[2]);
 
-                            bool isStop = parts[1].Contains("stop");
+                            bool isStop1 = parts[0].Contains("stop");
+                            bool isStop2 = parts[1].Contains("stop");
 
-                            routeData.Add((location1, 0, true));  // Voeg startlocatie toe
-                            routeData.Add((location2, distance, isStop)); // Voeg eindlocatie met afstand toe
+                            routeData.Add((location1, 0, isStop1));  // Voeg startlocatie toe
+                            routeData.Add((location2, distance, isStop2)); // Voeg eindlocatie met afstand toe
                         }
                     }
                 }
                 foreach (var (location, distance, isStop) in routeData)
                 {
-                    route.AddLocation(location, distance, isStop);
+                    if (!route.HasLocation(location))
+                    {
+                        route.AddLocation(location, distance, isStop);
+                    }
                 }
                 return route;
             }
@@ -76,17 +80,47 @@ namespace Labo5Route.Model
 
         public static XRoute ReverseRoute(XRoute route)
         {
-            var reversedRoute = new XRoute();
-            var locations = route.ShowLocations();
-            var stops = route.ShowStops();
-            var distances = new List<double>();
-
-            for (int i = locations.Count - 1; i > 0; i--)
+            if (route == null)
             {
-                distances.Add(route.GetDistance(locations[i], locations[i - 1]));
+                throw new ArgumentNullException(nameof(route), "Input route cannot be null.");
             }
 
-            reversedRoute = BuildRoute(locations, stops.ConvertAll(x => route.HasStop(x)), distances);
+            // Retrieve the full route information
+            var (start, segments) = route.ShowFullRoute();
+            var allLocations = new List<string> { start };
+            foreach (var segment in segments)
+            {
+                allLocations.Add(segment.location);
+            }
+
+            // Retrieve stop statuses
+            var stops = route.ShowStops();
+            var locationIsStop = allLocations.ToDictionary(
+                loc => loc,
+                loc => stops.Contains(loc)
+            );
+
+            // Reverse the locations and distances
+            var reversedLocations = allLocations.AsEnumerable().Reverse().ToList();
+            var reversedDistances = segments.AsEnumerable().Reverse().Select(seg => seg.distance).ToList();
+
+            // Initialize a new reversed route
+            var reversedRoute = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
+
+            // Add the first location with distance 0
+            string newStart = reversedLocations[0];
+            bool isStop = locationIsStop[newStart];
+            reversedRoute.AddLocation(newStart, 0, isStop);
+
+            // Add the rest of the locations with corresponding distances and stop statuses
+            for (int i = 0; i < reversedDistances.Count; i++)
+            {
+                string location = reversedLocations[i + 1];
+                double distance = reversedDistances[i];
+                bool isStopLocation = locationIsStop[location];
+                reversedRoute.AddLocation(location, distance, isStopLocation);
+            }
+
             return reversedRoute;
         }
 

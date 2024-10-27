@@ -189,5 +189,101 @@ namespace TestLabo5
             Assert.Contains("D", stops);
             Assert.Contains("E", stops);
         }
+
+        [Fact]
+        public void HasStop_ShouldReturnTrueForStop()
+        {
+            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
+            route.AddLocation("A", 0, false);
+            route.AddLocation("B", 5, true);
+
+            var result = route.HasStop("B");
+
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void HasStop_ShouldReturnFalseForNonStop()
+        {
+            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
+            route.AddLocation("A", 0, false);
+            route.AddLocation("B", 5, true);
+
+            var result = route.HasStop("A");
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void InsertLocation_ShouldInsertLocation()
+        {
+            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
+            route.AddLocation("A", 0, false);
+            route.AddLocation("B", 5, false);
+            route.AddLocation("C", 10, false);
+
+            route.InsertLocation("Q", 7, "B", true);
+
+            // controleer afstand
+            var totalDistance = route.GetDistance();
+            Assert.Equal(15, totalDistance);
+
+            // controleer volledige route
+            var fullRoute = route.ShowFullRoute();
+            Assert.Equal("A", fullRoute.start);
+
+            var expectedSegments = new List<(double distance, string location)>
+            {
+                (5.0, "B"),
+                (7.0, "Q"),
+                (3.0, "C")
+            };
+
+            Assert.Equal(expectedSegments.Count, fullRoute.Item2.Count);
+
+            for (int i = 0; i < expectedSegments.Count; i++)
+            {
+                Assert.Equal(expectedSegments[i].distance, fullRoute.Item2[i].distance);
+                Assert.Equal(expectedSegments[i].location, fullRoute.Item2[i].location);
+            }
+
+            // check dat Q een stop is
+            bool isQStop = route.HasStop("Q");
+            Assert.True(isQStop);
+        }
+
+        [Fact]
+        public void RemoveLocation_ShouldRemoveLocation()
+        {
+            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
+            route.AddLocation("A", 0, false);
+            route.AddLocation("B", 5, false);
+            route.AddLocation("C", 10, false);
+
+            route.RemoveLocation("B");
+
+            // check afstand nog klopt
+            double totalDistance = route.GetDistance();
+            Assert.Equal(15.0, totalDistance);
+
+            // check dat b weg is
+            Assert.False(route.HasLocation("B"));
+
+            var fullRoute = route.ShowFullRoute();
+            Assert.Equal("A", fullRoute.start);
+
+            var expectedSegments = new List<(double distance, string location)>
+            {
+                (15.0, "C")
+            };
+
+            Assert.Equal(expectedSegments.Count, fullRoute.Item2.Count);
+
+            for (int i = 0; i < expectedSegments.Count; i++)
+            {
+                Assert.Equal(expectedSegments[i].distance, fullRoute.Item2[i].distance);
+                Assert.Equal(expectedSegments[i].location, fullRoute.Item2[i].location);
+            }
+        }
     }
 }

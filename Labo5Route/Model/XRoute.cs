@@ -111,26 +111,99 @@ namespace Labo5
             return false;
         }
 
-        public void InsertLocation(string location, double distance, string fromLocation, bool isStop)  
+        public void InsertLocation(string location, double distance, string fromLocation, bool isStop)
         {
-            var segmentLocation = new SegmentLocation(location, isStop);
-
-            var fromSegment = _segments.FirstOrDefault(s => s.End.Name == fromLocation);
-            if (fromSegment == null)
+            // Check if the fromLocation exists in the route
+            bool fromLocationExists = HasLocation(fromLocation);
+            if (!fromLocationExists)
             {
-                throw new RouteException("Start location niet gevonden");
+                throw new RouteException($"FromLocation '{fromLocation}' not found in the route.");
             }
 
-            var remainingDistance = fromSegment.Distance.Value - distance;
-            if (remainingDistance < 0)
+            // Create the new SegmentLocation
+            var newSegmentLocation = new SegmentLocation(location, isStop);
+
+            // Find the segment where fromLocation is the start
+            var fromSegment = _segments.FirstOrDefault(s => s.Start.Name == fromLocation);
+
+            // Check if the distance to insert is valid
+            if (distance >= fromSegment.Distance.Value)
             {
-                throw new RouteException("ongeldige afstand");
+                throw new RouteException("The specified distance exceeds or equals the existing segment's distance.");
             }
 
-            // Maak het nieuwe segment en pas de bestaande segmenten aan
-            _segments.Insert(_segments.IndexOf(fromSegment) + 1, new Segment(fromSegment.End, segmentLocation, new Distance(distance)));
-            fromSegment = new Segment(fromSegment.Start, fromSegment.End, new Distance(remainingDistance));
+            // Calculate the remaining distance after inserting the new location
+            double remainingDistance = fromSegment.Distance.Value - distance;
+
+            // Create the new segments
+            var newSegment = new Segment(fromSegment.Start, newSegmentLocation, new Distance(distance));
+            var adjustedSegment = new Segment(newSegmentLocation, fromSegment.End, new Distance(remainingDistance));
+
+            // Find the index of the original segment
+            int fromSegmentIndex = _segments.IndexOf(fromSegment);
+
+            if (fromSegmentIndex == -1)
+            {
+                throw new RouteException("Segment containing the fromLocation was not found.");
+            }
+
+            // Replace the original segment with the new segments
+            _segments[fromSegmentIndex] = newSegment; // Replace with the segment to the new location
+            _segments.Insert(fromSegmentIndex + 1, new Segment(newSegmentLocation, fromSegment.End, new Distance(remainingDistance))); // Insert the adjusted segment
         }
+
+        public void RemoveLocation(string location)
+        {
+            // Check if the location exists in the route
+            if (!HasLocation(location))
+            {
+                throw new RouteException($"Location '{location}' not found in the route.");
+            }
+
+            // Find the segment where the location is the end
+            var segmentBefore = _segments.FirstOrDefault(s => s.End.Name.Equals(location, StringComparison.OrdinalIgnoreCase));
+            // Find the segment where the location is the start
+            var segmentAfter = _segments.FirstOrDefault(s => s.Start.Name.Equals(location, StringComparison.OrdinalIgnoreCase));
+
+            if (segmentBefore != null && segmentAfter != null)
+            {
+                // The location is a middle point; merge the two surrounding segments
+
+                // Calculate the new distance by summing the distances of the two segments
+                double newDistance = segmentBefore.Distance.Value + segmentAfter.Distance.Value;
+
+                // Create a new segment from the start of segmentBefore to the end of segmentAfter
+                var newSegment = new Segment(segmentBefore.Start, segmentAfter.End, new Distance(newDistance));
+
+                // Find the indices of the existing segments
+                int indexBefore = _segments.IndexOf(segmentBefore);
+                int indexAfter = _segments.IndexOf(segmentAfter);
+
+                // Remove the old segments
+                // Remove the segment after first to avoid shifting the index
+                _segments.RemoveAt(indexAfter);
+                _segments.RemoveAt(indexBefore);
+
+                // Insert the new merged segment at the position of the first removed segment
+                _segments.Insert(indexBefore, newSegment);
+            }
+            else if (segmentBefore != null)
+            {
+                // The location is at the end of the route; remove the last segment
+                _segments.Remove(segmentBefore);
+            }
+            else if (segmentAfter != null)
+            {
+                // The location is at the start of the route; remove the first segment
+                _segments.Remove(segmentAfter);
+            }
+            else
+            {
+                // The location is isolated and cannot be removed without breaking the route
+                throw new RouteException($"Cannot remove location '{location}' as it does not connect to other segments.");
+            }
+        }
+
 
         public (string start, List<(double distance, string location)>) ShowFullRoute()
         {

@@ -81,7 +81,7 @@ namespace Labo5
             return totalDistance;
         }
 
-        public bool HasLocation(string location) 
+        public bool HasLocation(string location)
         {
             foreach (var segment in _segments)
             {
@@ -204,6 +204,17 @@ namespace Labo5
             }
         }
 
+        public void SetDistance(double distance, string location1, string location2)
+        {
+            for (int i = 0; i < _segments.Count; i++)
+            {
+                var segment = _segments[i];
+                if (segment.Start.Name == location1 && segment.End.Name == location2)
+                {
+                    _segments[i] = new Segment(segment.Start, segment.End, new Distance(distance));
+                }
+            }
+        }
 
         public (string start, List<(double distance, string location)>) ShowFullRoute()
         {

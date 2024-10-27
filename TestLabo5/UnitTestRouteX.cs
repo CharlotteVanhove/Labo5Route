@@ -285,5 +285,35 @@ namespace TestLabo5
                 Assert.Equal(expectedSegments[i].location, fullRoute.Item2[i].location);
             }
         }
+
+        [Fact]
+        public void SetDistance_ShouldUpdateDistance()
+        {
+            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
+            route.AddLocation("A", 0, false);
+            route.AddLocation("B", 5, false);
+            route.AddLocation("C", 10, false);
+
+            route.SetDistance(15, "B", "C");
+
+            var fullRoute = route.ShowFullRoute();
+            Assert.Equal("A", fullRoute.start);
+            var expectedSegments = new List<(double distance, string location)>
+            {
+                (5.0, "B"),
+                (15.0, "C")
+            };
+
+            Assert.Equal(expectedSegments.Count, fullRoute.Item2.Count);
+
+            for (int i = 0; i < expectedSegments.Count; i++)
+            {
+                Assert.Equal(expectedSegments[i].distance, fullRoute.Item2[i].distance, precision: 2);
+                Assert.Equal(expectedSegments[i].location, fullRoute.Item2[i].location);
+            }
+
+            double totalDistance = route.GetDistance();
+            Assert.Equal(20.0, totalDistance);
+        }
     }
 }

@@ -16,6 +16,6 @@
         (string start, List<(double distance, string location)>) ShowRoute();
         (string start, List<(double distance, string location)>) ShowRoute(string startLocation, string endLocation);
         List<string> ShowStops();
-        //void UpdateLocation(string location, string newName, bool isStop);
+        void UpdateLocation(string location, string newName, bool isStop);
     }
 }

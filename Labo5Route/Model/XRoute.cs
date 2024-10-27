@@ -406,6 +406,22 @@ namespace Labo5
             return stops.ToList();
         }
 
+        public void UpdateLocation(string location, string newName, bool isStop)
+        {
+            for (var i = 0; i < _segments.Count; i++)
+            {
+                var segment = _segments[i];
 
+                if (segment.Start.Name == location)
+                {
+                    _segments[i] = new Segment(new SegmentLocation(newName, isStop), segment.End, segment.Distance);
+                }
+
+                if (segment.End.Name == location)
+                {
+                    _segments[i] = new Segment(segment.Start, new SegmentLocation(newName, isStop), segment.Distance);
+                }
+            }
+        }
     }
 }

@@ -10,11 +10,12 @@ namespace Labo5Route.Model
         {
             try
             {
-                var route = new XRoute();
+                var segmenten = new List<Segment>();
+                SegmentLocation previousSegmentLocation = null;
                 List<(string location, double distance, bool isStop)> routeData = new List<(string, double, bool)>(); // Gebruik van Tuples
 
                 string[] lines = File.ReadAllLines(fileName); // Lees alle regels van het bestand
-
+                int counter = 0;
                 foreach (var line in lines)
                 {
                     string[] parts;
@@ -44,19 +45,33 @@ namespace Labo5Route.Model
                             bool isStop1 = parts[0].Contains("stop");
                             bool isStop2 = parts[1].Contains("stop");
 
-                            routeData.Add((location1, 0, isStop1));  // Voeg startlocatie toe
+                            if (counter == 0)
+                            {
+                                // we voegen hier enkel de eerste locatie toe van op de eerste lijn
+                                // voor de andere lijnen voegen we gewoon altijd de tweede locatie toe op de lijn
+                                routeData.Add((location1, 0, isStop1));  // Voeg startlocatie toe
+                            }
+
                             routeData.Add((location2, distance, isStop2)); // Voeg eindlocatie met afstand toe
                         }
                     }
+
+                    counter++;
                 }
+
                 foreach (var (location, distance, isStop) in routeData)
                 {
-                    if (!route.HasLocation(location))
+                    var segmentLocation = new SegmentLocation(location, isStop);
+
+                    if (previousSegmentLocation != null)
                     {
-                        route.AddLocation(location, distance, isStop);
+                        segmenten.Add(new Segment(previousSegmentLocation, segmentLocation, new Distance(distance)));
                     }
+
+                    previousSegmentLocation = segmentLocation;
                 }
-                return route;
+
+                return new XRoute(segmenten); ;
             }
             catch (FileNotFoundException ex)
             {
@@ -70,12 +85,29 @@ namespace Labo5Route.Model
 
         public static XRoute BuildRoute(List<string> locations, List<bool> stops, List<double> distances)
         {
-            var route = new XRoute();
+            //nieuw segment toevoegen, dus niet met addLocation 
+            //ctor in xRoute om af te dwingen dat addroute niet kan, mothodes kan niet aanroepen zonder segment 
+            //var route = new XRoute();
+            //for (int i = 0; i < locations.Count; i++)
+            //{
+            //    route.AddLocation(locations[i], distances[i], stops[i]);
+            //}
+
+            var segmenten = new List<Segment>();
+
+            SegmentLocation previousSegmentLocation = null;
+
             for (int i = 0; i < locations.Count; i++)
             {
-                route.AddLocation(locations[i], distances[i], stops[i]);
+                var segmentLocation = new SegmentLocation(locations[i], stops[i]);
+                if (previousSegmentLocation != null)
+                {
+                    segmenten.Add(new Segment(previousSegmentLocation, segmentLocation, new Distance(distances[i])));
+                }
+                previousSegmentLocation = segmentLocation;
             }
-            return route;
+
+            return new XRoute(segmenten);
         }
 
         public static XRoute ReverseRoute(XRoute route)
@@ -105,12 +137,12 @@ namespace Labo5Route.Model
             var reversedDistances = segments.AsEnumerable().Reverse().Select(seg => seg.distance).ToList();
 
             // Initialize a new reversed route
-            var reversedRoute = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
+            var segmenten = new List<Segment>();
 
             // Add the first location with distance 0
             string newStart = reversedLocations[0];
             bool isStop = locationIsStop[newStart];
-            reversedRoute.AddLocation(newStart, 0, isStop);
+            var firstSementLocation = new SegmentLocation(newStart, isStop);
 
             // Add the rest of the locations with corresponding distances and stop statuses
             for (int i = 0; i < reversedDistances.Count; i++)
@@ -118,10 +150,10 @@ namespace Labo5Route.Model
                 string location = reversedLocations[i + 1];
                 double distance = reversedDistances[i];
                 bool isStopLocation = locationIsStop[location];
-                reversedRoute.AddLocation(location, distance, isStopLocation);
+                segmenten.Add(new Segment(firstSementLocation, new SegmentLocation(location, isStopLocation), new Distance(distance)));
             }
 
-            return reversedRoute;
+            return new XRoute(segmenten);
         }
 
     }

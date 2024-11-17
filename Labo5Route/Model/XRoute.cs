@@ -7,36 +7,35 @@ namespace Labo5
     //eerste segement noet oplsaan, insert kan niet vooraan invoegen 
     public class XRoute : IRoute
     {
-        private List<Segment> _segments = new List<Segment>();
-        private SegmentLocation _firstTempSegmentLocation = null;
+        private List<Segment> _segments;
 
         // XRoute zelf is toegankelijk buiten de assembly,
         // maar gebruikers buiten de assembly kunnen geen instantie van deze klasse aanmaken,
         // omdat de constructor internal is.
         // Dit betekent dat je de methoden en properties van XRoute nog steeds kunt gebruiken buiten de assembly,
         // als je bijvoorbeeld een XRoute-instantie ontvangt van een andere klasse zoals RouteFactory.
-        internal XRoute() { }
+        internal XRoute(List<Segment> segmenten)
+        {
+            //meegeven dat er sowieso een segment moet bestaan en dat in ctor meegeven 
+            //
+            //lijst in ctor zetten? 
+            if (segmenten == null || !segmenten.Any())
+            {
+                throw new RouteException("Minstens 1 segment meegeven");
+            }
+
+            _segments = segmenten;
+        }
 
         public void AddLocation(string location, double distance, bool isStop)
         {
+            //enkel segmenten toevoegen aan het einde, dus dit is niet nodig 
             var segmentLocation = new SegmentLocation(location, isStop);
 
-            if (_segments.Count == 0 && _firstTempSegmentLocation == null)
-            {
-                // Eerste locatie
-                _firstTempSegmentLocation = segmentLocation;
-            }
-            else if (_segments.Count == 0 && _firstTempSegmentLocation != null)
-            {
-                _segments.Add(new Segment(_firstTempSegmentLocation, segmentLocation, new Distance(distance)));
-            }
-            else
-            {
-                // Toevoegen van nieuwe locatie
-                var lastSegment = _segments.Last();
-                var newDistance = new Distance(distance);
-                _segments.Add(new Segment(lastSegment.End, segmentLocation, newDistance));
-            }
+            // Toevoegen van nieuwe locatie
+            var lastSegment = _segments.Last();
+            var newDistance = new Distance(distance);
+            _segments.Add(new Segment(lastSegment.End, segmentLocation, newDistance));
         }
 
         public double GetDistance()
@@ -91,6 +90,7 @@ namespace Labo5
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -111,7 +111,7 @@ namespace Labo5
             return false;
         }
 
-        public void InsertLocation(string location, double distance, string fromLocation, bool isStop)
+        public void InsertLocation(string location, double distance, string fromLocation, bool isStop) //enkel mogleijk als er 2 segmenten zijn 
         {
             // Check if the fromLocation exists in the route
             bool fromLocationExists = HasLocation(fromLocation);
@@ -142,17 +142,12 @@ namespace Labo5
             // Find the index of the original segment
             int fromSegmentIndex = _segments.IndexOf(fromSegment);
 
-            if (fromSegmentIndex == -1)
-            {
-                throw new RouteException("Segment containing the fromLocation was not found.");
-            }
-
             // Replace the original segment with the new segments
             _segments[fromSegmentIndex] = newSegment; // Replace with the segment to the new location
-            _segments.Insert(fromSegmentIndex + 1, new Segment(newSegmentLocation, fromSegment.End, new Distance(remainingDistance))); // Insert the adjusted segment
+            _segments.Insert(fromSegmentIndex + 1, adjustedSegment); // Insert the adjusted segment
         }
 
-        public void RemoveLocation(string location)
+        public void RemoveLocation(string location) // check if er een segment overblijft 
         {
             // Check if the location exists in the route
             if (!HasLocation(location))
@@ -204,7 +199,7 @@ namespace Labo5
             }
         }
 
-        public void SetDistance(double distance, string location1, string location2)
+        public void SetDistance(double distance, string location1, string location2) //distance aanpassen tussen 2 locaties/ updaten segment
         {
             for (int i = 0; i < _segments.Count; i++)
             {
@@ -279,6 +274,7 @@ namespace Labo5
 
         public List<string> ShowLocations()
         {
+            //hashset zodat de locaties niet dubbel in de lijst komen
             var locations = new HashSet<string>();
 
             // Loop door alle segmenten en voeg start- en eindlocaties toe aan de HashSet
@@ -294,8 +290,9 @@ namespace Labo5
 
         }
 
-        public (string start, List<(double distance, string location)>) ShowRoute() //allee afstanden stops mogen er niet bij  
+        public (string start, List<(double distance, string location)>) ShowRoute() //todo moet dit niet omgekeerd zijn? allee afstanden enkel stops mogen er niet bij .
         {
+
             // Controleer of er segmenten zijn
             if (_segments.Count == 0)
             {

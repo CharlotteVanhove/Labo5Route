@@ -10,15 +10,11 @@ namespace Labo5
         private readonly List<Segment> _segments;
 
         // XRoute zelf is toegankelijk buiten de assembly,
-        // maar gebruikers buiten de assembly kunnen geen instantie van deze klasse aanmaken,
-        // omdat de constructor internal is.
+        // maar gebruikers buiten de assembly kunnen geen instantie van deze klasse aanmaken,omdat de constructor internal is.
         // Dit betekent dat je de methoden en properties van XRoute nog steeds kunt gebruiken buiten de assembly,
         // als je bijvoorbeeld een XRoute-instantie ontvangt van een andere klasse zoals RouteFactory.
         internal XRoute(List<Segment> segmenten)
         {
-            //meegeven dat er sowieso een segment moet bestaan en dat in ctor meegeven 
-            //
-            //lijst in ctor zetten? 
             if (segmenten == null || !segmenten.Any())
             {
                 throw new RouteException("Minstens 1 segment meegeven");
@@ -29,7 +25,6 @@ namespace Labo5
 
         public void AddLocation(string location, double distance, bool isStop)
         {
-            //enkel segmenten toevoegen aan het einde, dus dit is niet nodig 
             var segmentLocation = new SegmentLocation(location, isStop);
 
             // Toevoegen van nieuwe locatie
@@ -40,15 +35,15 @@ namespace Labo5
 
         public double GetDistance()
         {
-            double totalDistance = 0;
-            foreach (var loc in _segments)
-            {
-                totalDistance += loc.Distance.AfstandInKM;
-            }
-            return totalDistance;
+            //double totalDistance = 0;
+            //foreach (var loc in _segments)
+            //{
+            //    totalDistance += loc.Distance.AfstandInKM;
+            //}
+            //return totalDistance;
 
             //zelfde met LINQ
-            // return _segments.Sum(segment => segment.Distance.Value);
+            return _segments.Sum(segment => segment.Distance.AfstandInKM);
         }
 
         public double GetDistance(string startLocation, string endLocation)
@@ -96,43 +91,43 @@ namespace Labo5
 
         public bool HasLocation(string location)
         {
-            foreach (var segment in _segments)
-            {
-                if (segment.Start.Name == location ||
-                    segment.End.Name == location)
-                {
-                    return true;
-                }
-            }
-            return false;
+            //foreach (var segment in _segments)
+            //{
+            //    if (segment.Start.Name == location ||
+            //        segment.End.Name == location)
+            //    {
+            //        return true;
+            //    }
+            //}
+            //return false;
 
-            //return _segments.Any(s => s.Start.Name == location || s.End.Name == location);
+            return _segments.Any(s => s.Start.Name == location || s.End.Name == location);
 
         }
 
         public bool HasStop(string location) // is stop of doorrijdplaats? true or false
         {
-            foreach (var segment in _segments)
-            {
-                if (segment.Start.Name == location)
-                {
-                    return segment.Start.IsStop;
-                }
+            //foreach (var segment in _segments)
+            //{
+            //    if (segment.Start.Name == location)
+            //    {
+            //        return segment.Start.IsStop;
+            //    }
 
-                if (segment.End.Name == location)
-                {
-                    return segment.End.IsStop;
-                }
-            }
-            return false;
+            //    if (segment.End.Name == location)
+            //    {
+            //        return segment.End.IsStop;
+            //    }
+            //}
+            //return false;
 
-            // return _segments
-            //.Where(s => s.Start.Name == location || s.End.Name == location)
-            //.Select(s => s.Start.Name == location ? s.Start.IsStop : s.End.IsStop)
-            //.FirstOrDefault();
+            return _segments
+           .Where(s => s.Start.Name == location || s.End.Name == location)
+           .Select(s => s.Start.Name == location ? s.Start.IsStop : s.End.IsStop)
+           .FirstOrDefault();
         }
 
-        public void InsertLocation(string location, double distance, string fromLocation, bool isStop) //enkel mogleijk als er 2 segmenten zijn 
+        public void InsertLocation(string location, double distance, string fromLocation, bool isStop) //todo enkel mogelijk als er 2 segmenten zijn 
         {
             // Check if the fromLocation exists in the route
             bool fromLocationExists = HasLocation(fromLocation);
@@ -167,11 +162,9 @@ namespace Labo5
             _segments[fromSegmentIndex] = newSegment; // Replace with the segment to the new location
             _segments.Insert(fromSegmentIndex + 1, adjustedSegment); // Insert the adjusted segment
 
-
-
         }
 
-        public void RemoveLocation(string location) // check if er een segment overblijft 
+        public void RemoveLocation(string location) // todo check if er een segment overblijft 
         {
             // Check if the location exists in the route
             if (!HasLocation(location))
@@ -229,7 +222,7 @@ namespace Labo5
             }
         }
 
-        public void SetDistance(double distance, string location1, string location2) //distance aanpassen tussen 2 locaties/ updaten segment
+        public void SetDistance(double distance, string location1, string location2) //distance aanpassen tussen 2 locaties/ update segment
         {
             for (int i = 0; i < _segments.Count; i++)
             {
@@ -243,33 +236,33 @@ namespace Labo5
 
         public (string start, List<(double distance, string location)>) ShowFullRoute()
         {
-            // Controleer of er segmenten zijn
-            if (_segments.Count == 0)
-            {
-                throw new RouteException("ShowFullRoute");
-            }
-
-            // De startlocatie is de start van het eerste segment
-            string startLocation = _segments[0].Start.Name;
-            var routeSegments = new List<(double distance, string location)>();
-
-            // Loop door alle segmenten en verzamel de afstanden en eindlocaties
-            foreach (var segment in _segments)
-            {
-                routeSegments.Add((segment.Distance.AfstandInKM, segment.End.Name));
-            }
-
-            // Retourneer de startlocatie en de volledige route
-            return (startLocation, routeSegments);
-
-            //linq
-            //if (!_segments.Any())
+            //// Controleer of er segmenten zijn
+            //if (_segments.Count == 0)
             //{
             //    throw new RouteException("ShowFullRoute");
             //}
 
-            //var route = _segments.Select(s => (s.Distance.Value, s.End.Name)).ToList();
-            //return (_segments.First().Start.Name, route);
+            //// De startlocatie is de start van het eerste segment
+            //string startLocation = _segments[0].Start.Name;
+            //var routeSegments = new List<(double distance, string location)>();
+
+            //// Loop door alle segmenten en verzamel de afstanden en eindlocaties
+            //foreach (var segment in _segments)
+            //{
+            //    routeSegments.Add((segment.Distance.AfstandInKM, segment.End.Name));
+            //}
+
+            //// Retourneer de startlocatie en de volledige route
+            //return (startLocation, routeSegments);
+
+            //linq
+            if (!_segments.Any())
+            {
+                throw new RouteException("ShowFullRoute");
+            }
+
+            var route = _segments.Select(s => (s.Distance.AfstandInKM, s.End.Name)).ToList();
+            return (_segments.First().Start.Name, route);
         }
 
         public (string start, List<(double distance, string location)>) ShowFullRoute(string startLocation, string endLocation)
@@ -315,7 +308,7 @@ namespace Labo5
             //.SkipWhile(s => s.Start.Name != startLocation)
             //.TakeWhile(s => s.End.Name != endLocation)
             //.Concat(_segments.Where(s => s.End.Name == endLocation).Take(1)) // Include segment with end location
-            //.Select(s => (s.Distance.Value, s.End.Name))
+            //.Select(s => (s.Distance.AfstandInKM, s.End.Name))
             //.ToList();
 
             //if (!route.Any() || route.First().Item2 != startLocation || route.Last().Item2 != endLocation)
@@ -328,23 +321,23 @@ namespace Labo5
 
         public List<string> ShowLocations()
         {
-            //hashset zodat de locaties niet dubbel in de lijst komen
-            var locations = new HashSet<string>();
+            ////hashset zodat de locaties niet dubbel in de lijst komen
+            //var locations = new HashSet<string>();
 
-            // Loop door alle segmenten en voeg start- en eindlocaties toe aan de HashSet
-            foreach (var segment in _segments)
-            {
-                locations.Add(segment.Start.Name); // Voeg de startlocatie toe
-                locations.Add(segment.End.Name);   // Voeg de eindlocatie toe
-            }
+            //// Loop door alle segmenten en voeg start- en eindlocaties toe aan de HashSet
+            //foreach (var segment in _segments)
+            //{
+            //    locations.Add(segment.Start.Name); // Voeg de startlocatie toe
+            //    locations.Add(segment.End.Name);   // Voeg de eindlocatie toe
+            //}
 
-            // Converteer de HashSet naar een List en retourneer deze
-            return locations.ToList();
+            //// Converteer de HashSet naar een List en retourneer deze
+            //return locations.ToList();
 
-            //return _segments
-            //.SelectMany(s => new[] { s.Start.Name, s.End.Name })
-            //.Distinct()
-            //.ToList();
+            return _segments
+            .SelectMany(s => new[] { s.Start.Name, s.End.Name })
+            .Distinct()
+            .ToList();
         }
 
         public (string start, List<(double distance, string location)>) ShowRoute() //toont route met enkel de stops 
@@ -439,33 +432,33 @@ namespace Labo5
 
         public List<string> ShowStops()
         {
-            var stops = new HashSet<string>();
+            //var stops = new HashSet<string>();
 
-            // Loop door alle segmenten
-            foreach (var segment in _segments)
-            {
-                // Voeg de startlocatie toe als het een stopplaats is
-                if (segment.Start.IsStop)
-                {
-                    stops.Add(segment.Start.Name);
-                }
+            //// Loop door alle segmenten
+            //foreach (var segment in _segments)
+            //{
+            //    // Voeg de startlocatie toe als het een stopplaats is
+            //    if (segment.Start.IsStop)
+            //    {
+            //        stops.Add(segment.Start.Name);
+            //    }
 
-                // Voeg de eindlocatie toe als het een stopplaats is
-                if (segment.End.IsStop)
-                {
-                    stops.Add(segment.End.Name);
-                }
-            }
-            // Converteer de HashSet naar een List en retourneer deze
-            return stops.ToList();
+            //    // Voeg de eindlocatie toe als het een stopplaats is
+            //    if (segment.End.IsStop)
+            //    {
+            //        stops.Add(segment.End.Name);
+            //    }
+            //}
+            //// Converteer de HashSet naar een List en retourneer deze
+            //return stops.ToList();
 
             //LINQ
-            //return _segments
-            //.SelectMany(s => new[] { s.Start, s.End })
-            //.Where(location => location.IsStop)
-            //.Select(location => location.Name)
-            //.Distinct()
-            //.ToList();
+            return _segments
+            .SelectMany(s => new[] { s.Start, s.End })
+            .Where(location => location.IsStop)
+            .Select(location => location.Name)
+            .Distinct()
+            .ToList();
         }
 
         public void UpdateLocation(string location, string newName, bool isStop)

@@ -73,11 +73,7 @@ namespace TestLabo5
         [Fact]
         public void ShowFullRoute_ShouldReturnFullRoute()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, true);
-            route.AddLocation("B", 5, true);
-            route.AddLocation("C", 10, true);
-            route.AddLocation("D", 15, true);
+            var route = RouteFactory.BuildRoute(["A", "B", "C", "D"], [true, true, true, true], [0, 5, 10, 15]);
 
             var result = route.ShowFullRoute();
 
@@ -91,12 +87,7 @@ namespace TestLabo5
         [Fact]
         public void ShowFullRouteWithParams_ShouldReturnPartOfRoute()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, true);
-            route.AddLocation("B", 5, true);
-            route.AddLocation("C", 10, true);
-            route.AddLocation("D", 15, true);
-            route.AddLocation("E", 5, true);
+            var route = RouteFactory.BuildRoute(["A", "B", "C", "D", "E"], [true, true, true, true, true], [0, 5, 10, 15,5]);
 
             var result = route.ShowFullRoute("B", "D");
 
@@ -109,48 +100,37 @@ namespace TestLabo5
         [Fact]
         public void ShowRouteWithoutStops_ShouldReturnFullRoute()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, false);
-            route.AddLocation("B", 5, false);
-            route.AddLocation("C", 10, true);
-            route.AddLocation("D", 15, false);
-            route.AddLocation("E", 5, false);
+            var route = RouteFactory.BuildRoute(["A", "B", "C", "D", "E"], [true, true, true, true, true], [0, 5, 10, 15, 5]);
 
             var result = route.ShowRoute();
 
             Assert.Equal("A", result.start);
-            Assert.Equal(3, result.Item2.Count);
+            Assert.Equal(4, result.Item2.Count);
             Assert.Equal((5, "B"), result.Item2[0]);
-            Assert.Equal((25, "D"), result.Item2[1]);
-            Assert.Equal((5, "E"), result.Item2[2]);
+            Assert.Equal((10, "C"), result.Item2[1]);
+            Assert.Equal((15, "D"), result.Item2[2]);
+            Assert.Equal((5, "E"), result.Item2[3]);
         }
 
         [Fact]
         public void ShowRouteRouteWithoutStopsWithParams_ShouldReturnPartOfRoute()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, false);
-            route.AddLocation("B", 5, false);
-            route.AddLocation("C", 10, true);
-            route.AddLocation("D", 15, false);
-            route.AddLocation("E", 5, false);
+            var route = RouteFactory.BuildRoute(["A", "B", "C", "D", "E"], [true, true, true, true, true], [0, 5, 10, 15, 5]);
 
             var result = route.ShowRoute("B", "E");
 
             Assert.Equal("B", result.start);
-            Assert.Equal(2, result.Item2.Count);
-            Assert.Equal((25, "D"), result.Item2[0]);
-            Assert.Equal((5, "E"), result.Item2[1]);
+            Assert.Equal(3, result.Item2.Count);
+            Assert.Equal((10, "C"), result.Item2[0]);
+            Assert.Equal((15, "D"), result.Item2[1]);
+            Assert.Equal((5, "E"), result.Item2[2]);
+
         }
 
         [Fact]
         public void ShowLocations_ShouldReturnUniqueLocations()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, true);
-            route.AddLocation("B", 5, true);
-            route.AddLocation("C", 10, true);
-            route.AddLocation("D", 15, true);
+            var route = RouteFactory.BuildRoute(["A", "B", "C", "D"], [true, true, true, true], [0, 5, 10, 15]);
 
             var locations = route.ShowLocations();
 
@@ -164,12 +144,7 @@ namespace TestLabo5
         [Fact]
         public void ShowStops_ShouldShowStops()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, false);
-            route.AddLocation("B", 5, true);
-            route.AddLocation("C", 10, false);
-            route.AddLocation("D", 15, true);
-            route.AddLocation("E", 15, true);
+            var route = RouteFactory.BuildRoute(["A", "B", "C", "D", "E"], [false, true, false, true, true], [0, 5, 10, 15, 5]);
 
             var stops = route.ShowStops();
 
@@ -183,9 +158,7 @@ namespace TestLabo5
         [Fact]
         public void HasStop_ShouldReturnTrueForStop()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, false);
-            route.AddLocation("B", 5, true);
+            var route = RouteFactory.BuildRoute(["A", "B"], [false, true], [0, 5]);
 
             var result = route.HasStop("B");
 
@@ -195,9 +168,7 @@ namespace TestLabo5
         [Fact]
         public void HasStop_ShouldReturnFalseForNonStop()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, false);
-            route.AddLocation("B", 5, true);
+            var route = RouteFactory.BuildRoute(["A", "B"], [false, true], [0, 5]);
 
             var result = route.HasStop("A");
 
@@ -207,10 +178,8 @@ namespace TestLabo5
         [Fact]
         public void InsertLocation_ShouldInsertLocation()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, false);
-            route.AddLocation("B", 5, false);
-            route.AddLocation("C", 10, false);
+
+            var route = RouteFactory.BuildRoute(["A", "B", "C"], [false, false, false], [0, 5, 10]);
 
             route.InsertLocation("Q", 7, "B", true);
 
@@ -245,10 +214,7 @@ namespace TestLabo5
         [Fact]
         public void RemoveLocation_ShouldRemoveLocation()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, false);
-            route.AddLocation("B", 5, false);
-            route.AddLocation("C", 10, false);
+            var route = RouteFactory.BuildRoute(["A", "B", "C"], [false, false, false], [0, 5, 10]);
 
             route.RemoveLocation("B");
 
@@ -279,10 +245,7 @@ namespace TestLabo5
         [Fact]
         public void SetDistance_ShouldUpdateDistance()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, false);
-            route.AddLocation("B", 5, false);
-            route.AddLocation("C", 10, false);
+            var route = RouteFactory.BuildRoute(["A", "B", "C"], [false, false, false], [0, 5, 10]);
 
             route.SetDistance(15, "B", "C");
 
@@ -309,10 +272,7 @@ namespace TestLabo5
         [Fact]
         public void UpdateLocation_ShouldSetNewName()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, false);
-            route.AddLocation("B", 5, false);
-            route.AddLocation("C", 10, false);
+            var route = RouteFactory.BuildRoute(["A", "B", "C"], [false, false, false], [0, 5, 10]);
 
             route.UpdateLocation("B", "Q", true);
 

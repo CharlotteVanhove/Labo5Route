@@ -18,7 +18,6 @@ namespace Labo5Route.Model
                 throw new RouteException($"Afstand moet groter zijn dan {minOpgegevenWaarde}");
             }
             AfstandInKM = value;
-
         }
     }
 }

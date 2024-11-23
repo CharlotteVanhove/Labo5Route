@@ -108,6 +108,7 @@ namespace Labo5Route.Model
             {
                 throw new ArgumentNullException(nameof(route), "Input route cannot be null.");
             }
+            //todo ask thibault. mag je private list aanspreken
 
             // Retrieve the full route information
             var (start, segments) = route.ShowFullRoute();

@@ -2,7 +2,7 @@
 
 namespace Labo5Route.Model
 {
-    public class Location
+    public abstract class Location
     {
         public string Name { get; private set; }
 

@@ -164,7 +164,7 @@ namespace Labo5
 
         }
 
-        public void RemoveLocation(string location) // todo check if er een segment overblijft 
+        public void RemoveLocation(string location) 
         {
             // Check if the location exists in the route
             if (!HasLocation(location))
@@ -215,7 +215,6 @@ namespace Labo5
                 // The location is isolated and cannot be removed without breaking the route
                 throw new RouteException($"Cannot remove location '{location}' as it does not connect to other segments.");
             }
-            //todo check of er nog een segment overblijft
             if (_segments.Count == 0)
             {
                 throw new RouteException("Cannot remove the last segment.");
@@ -303,7 +302,7 @@ namespace Labo5
             // Retourneer de startlocatie samen met de lijst van afstanden en locaties
             return (startLocation, routeSegments);
 
-
+            ////todo linq klopt nog niet 
             //var route = _segments
             //.SkipWhile(s => s.Start.Name != startLocation)
             //.TakeWhile(s => s.End.Name != endLocation)

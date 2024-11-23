@@ -1,4 +1,5 @@
-﻿using Labo5Route.Model;
+﻿using Labo5.Exceptions;
+using Labo5Route.Model;
 
 namespace TestLabo5;
 
@@ -152,5 +153,12 @@ public class UnitTestRouteFactory
         double originalTotalDistance = originalRoute.GetDistance();
         double reversedTotalDistance = reversedRoute.GetDistance();
         Assert.Equal(originalTotalDistance, reversedTotalDistance, precision: 2);
+    }
+
+
+    [Fact]
+    public void BuildEmptyRoute_ShouldThrowException()
+    {
+        Assert.Throws<RouteException>(() => RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>()));
     }
 }

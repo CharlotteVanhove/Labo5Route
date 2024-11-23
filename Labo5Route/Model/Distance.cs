@@ -9,7 +9,7 @@ namespace Labo5Route.Model
 {
     public class Distance
     {
-        public double Value { get; private set; }
+        public double AfstandInKM { get; private set; }
         const int minOpgegevenWaarde = 2;
         public Distance(double value)
         {
@@ -17,8 +17,8 @@ namespace Labo5Route.Model
             {
                 throw new RouteException($"Afstand moet groter zijn dan {minOpgegevenWaarde}");
             }
-            Value = value;
-        }
+            AfstandInKM = value;
 
+        }
     }
 }

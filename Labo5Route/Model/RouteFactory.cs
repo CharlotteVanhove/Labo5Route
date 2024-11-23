@@ -85,17 +85,9 @@ namespace Labo5Route.Model
 
         public static XRoute BuildRoute(List<string> locations, List<bool> stops, List<double> distances)
         {
-            //nieuw segment toevoegen, dus niet met addLocation 
-            //ctor in xRoute om af te dwingen dat addroute niet kan, mothodes kan niet aanroepen zonder segment 
-            //var route = new XRoute();
-            //for (int i = 0; i < locations.Count; i++)
-            //{
-            //    route.AddLocation(locations[i], distances[i], stops[i]);
-            //}
-
             var segmenten = new List<Segment>();
 
-            SegmentLocation previousSegmentLocation = null;
+            SegmentLocation? previousSegmentLocation = null;
 
             for (int i = 0; i < locations.Count; i++)
             {

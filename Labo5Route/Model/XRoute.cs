@@ -1,15 +1,13 @@
 ﻿using Labo5.Exceptions;
 using Labo5.Interfaces;
 using Labo5Route.Model;
-using System;
 
 namespace Labo5
 {
     //eerste segement niet oplsaan, insert kan niet vooraan invoegen 
     public class XRoute : IRoute
     {
-        //readonly van maken?
-        private List<Segment> _segments;
+        private readonly List<Segment> _segments;
 
         // XRoute zelf is toegankelijk buiten de assembly,
         // maar gebruikers buiten de assembly kunnen geen instantie van deze klasse aanmaken,
@@ -45,7 +43,7 @@ namespace Labo5
             double totalDistance = 0;
             foreach (var loc in _segments)
             {
-                totalDistance += loc.Distance.Value;
+                totalDistance += loc.Distance.AfstandInKM;
             }
             return totalDistance;
 
@@ -55,45 +53,45 @@ namespace Labo5
 
         public double GetDistance(string startLocation, string endLocation)
         {
-            int startIndex = -1, endIndex = -1;
+            //int startIndex = -1, endIndex = -1;
 
-            for (int i = 0; i < _segments.Count; i++)
-            {
-                if (_segments[i].Start.Name == startLocation)
-                {
-                    startIndex = i;
-                }
+            //for (int i = 0; i < _segments.Count; i++)
+            //{
+            //    if (_segments[i].Start.Name == startLocation)
+            //    {
+            //        startIndex = i;
+            //    }
 
-                if (_segments[i].End.Name == endLocation)
-                {
-                    endIndex = i;
-                    break;
-                }
-            }
+            //    if (_segments[i].End.Name == endLocation)
+            //    {
+            //        endIndex = i;
+            //        break;
+            //    }
+            //}
 
-            if (startIndex == -1 || endIndex == -1 || startIndex > endIndex)
-            {
-                throw new RouteException("GetDistance");
-            }
-
-            double totalDistance = 0;
-            for (int i = startIndex; i <= endIndex; i++)
-            {
-                totalDistance += _segments[i].Distance.Value;
-            }
-            return totalDistance;
-
-            //Met LINQ
-            //var range = _segments
-            //.SkipWhile(s => s.Start.Name != startLocation)
-            //.TakeWhile(s => s.End.Name != endLocation)
-            //.Concat(_segments.Where(s => s.End.Name == endLocation).Take(1)) // Include segment with end location
-            //.ToList();
-            //if (!range.Any() || range.First().Start.Name != startLocation || range.Last().End.Name != endLocation)
+            //if (startIndex == -1 || endIndex == -1 || startIndex > endIndex)
             //{
             //    throw new RouteException("GetDistance");
             //}
-            //return range.Sum(segment => segment.Distance.Value);
+
+            //double totalDistance = 0;
+            //for (int i = startIndex; i <= endIndex; i++)
+            //{
+            //    totalDistance += _segments[i].Distance.AfstandInKM;
+            //}
+            //return totalDistance;
+
+            //Met LINQ
+            var range = _segments
+            .SkipWhile(s => s.Start.Name != startLocation)
+            .TakeWhile(s => s.End.Name != endLocation)
+            .Concat(_segments.Where(s => s.End.Name == endLocation).Take(1)) // Include segment with end location
+            .ToList();
+            if (!range.Any() || range.First().Start.Name != startLocation || range.Last().End.Name != endLocation)
+            {
+                throw new RouteException("GetDistance");
+            }
+            return range.Sum(segment => segment.Distance.AfstandInKM);
         }
 
         public bool HasLocation(string location)
@@ -150,13 +148,13 @@ namespace Labo5
             var fromSegment = _segments.FirstOrDefault(s => s.Start.Name == fromLocation);
 
             // Check if the distance to insert is valid
-            if (distance >= fromSegment.Distance.Value)
+            if (distance >= fromSegment.Distance.AfstandInKM)
             {
                 throw new RouteException("The specified distance exceeds or equals the existing segment's distance.");
             }
 
             // Calculate the remaining distance after inserting the new location
-            double remainingDistance = fromSegment.Distance.Value - distance;
+            double remainingDistance = fromSegment.Distance.AfstandInKM - distance;
 
             // Create the new segments
             var newSegment = new Segment(fromSegment.Start, newSegmentLocation, new Distance(distance));
@@ -192,7 +190,7 @@ namespace Labo5
                 // The location is a middle point; merge the two surrounding segments
 
                 // Calculate the new distance by summing the distances of the two segments
-                double newDistance = segmentBefore.Distance.Value + segmentAfter.Distance.Value;
+                double newDistance = segmentBefore.Distance.AfstandInKM + segmentAfter.Distance.AfstandInKM;
 
                 // Create a new segment from the start of segmentBefore to the end of segmentAfter
                 var newSegment = new Segment(segmentBefore.Start, segmentAfter.End, new Distance(newDistance));
@@ -258,7 +256,7 @@ namespace Labo5
             // Loop door alle segmenten en verzamel de afstanden en eindlocaties
             foreach (var segment in _segments)
             {
-                routeSegments.Add((segment.Distance.Value, segment.End.Name));
+                routeSegments.Add((segment.Distance.AfstandInKM, segment.End.Name));
             }
 
             // Retourneer de startlocatie en de volledige route
@@ -290,10 +288,10 @@ namespace Labo5
                     startFound = true;
 
                     // Voeg de startlocatie en afstand toe aan de lijst
-                    routeSegments.Add((segment.Distance.Value, segment.End.Name));
+                    routeSegments.Add((segment.Distance.AfstandInKM, segment.End.Name));
 
                     // Voeg de afstand van het huidige segment toe
-                    totalDistance += segment.Distance.Value;
+                    totalDistance += segment.Distance.AfstandInKM;
 
                     // Stop met zoeken wanneer de eindlocatie is gevonden
                     if (segment.End.Name == endLocation)
@@ -373,11 +371,11 @@ namespace Labo5
                 if (!segment.End.IsStop)
                 {
                     // als het toch geen stopplaats is, dan willen we de afgelegde afstand wel bijhouden
-                    stopDistance += segment.Distance.Value;
+                    stopDistance += segment.Distance.AfstandInKM;
                 }
                 else
                 {
-                    routeSegments.Add((segment.Distance.Value + stopDistance, segment.End.Name));
+                    routeSegments.Add((segment.Distance.AfstandInKM + stopDistance, segment.End.Name));
                     stopDistance = 0;
                 }
             }
@@ -413,11 +411,11 @@ namespace Labo5
                     if (!segment.End.IsStop)
                     {
                         // als het toch geen stopplaats is, dan willen we de afgelegde afstand wel bijhouden
-                        stopDistance += segment.Distance.Value;
+                        stopDistance += segment.Distance.AfstandInKM;
                     }
                     else
                     {
-                        routeSegments.Add((segment.Distance.Value + stopDistance, segment.End.Name));
+                        routeSegments.Add((segment.Distance.AfstandInKM + stopDistance, segment.End.Name));
                         stopDistance = 0;
                     }
 
@@ -461,7 +459,7 @@ namespace Labo5
             // Converteer de HashSet naar een List en retourneer deze
             return stops.ToList();
 
-            //todo: LINQ
+            //LINQ
             //return _segments
             //.SelectMany(s => new[] { s.Start, s.End })
             //.Where(location => location.IsStop)

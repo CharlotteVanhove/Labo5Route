@@ -8,7 +8,7 @@ namespace TestLabo5
         [Fact]
         public void AddLocation_ShouldAddLocation()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
+            var route = RouteFactory.BuildRoute(["Waregem", "Gent"], [true, true], [0, 25]);
             route.AddLocation("A", 5, true);
             route.AddLocation("B", 10, false);
 
@@ -19,55 +19,45 @@ namespace TestLabo5
         [Fact]
         public void GetDistance_ShouldReturnTotalDistance()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 5, true);
-            route.AddLocation("B", 10, false);
+            var route = RouteFactory.BuildRoute(["Waregem", "Gent"], [true, true], [0, 25]);
 
-            Assert.Equal(10, route.GetDistance());
+            Assert.Equal(25, route.GetDistance());
         }
 
         [Fact]
         public void GetDistanceBetweenStops_ShouldGetDistance()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, true);
-            route.AddLocation("B", 5, true);
-            route.AddLocation("C", 10, true);
-            route.AddLocation("D", 15, true);
+            var route = RouteFactory.BuildRoute(["Kortrijk", "Waregem", "Gent", "Antwerpen"], [true, true, true,true], [0, 10, 25, 60]);
 
-            var distance = route.GetDistance("C", "D");
+            var distance = route.GetDistance("Waregem", "Gent");
 
-            Assert.Equal(15, distance);
+            Assert.Equal(25, distance);
 
-            distance = route.GetDistance("A", "D");
+            distance = route.GetDistance("Kortrijk", "Antwerpen");
 
-            Assert.Equal(30, distance);
+            Assert.Equal(95, distance);
         }
 
         [Fact]
         public void ThrowException_WhenCalculateWrongDistance()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
-            route.AddLocation("A", 0, true);
-            route.AddLocation("B", 5, true);
-            route.AddLocation("C", 10, true);
-            route.AddLocation("D", 15, true);
+            var route = RouteFactory.BuildRoute(["Kortrijk", "Waregem", "Gent", "Antwerpen"], [true, true, true, true], [0, 10, 25, 60]);
 
-            Assert.Throws<RouteException>(() => route.GetDistance("D", "A"));
+            Assert.Throws<RouteException>(() => route.GetDistance("Antwerpen", "Kortrijk"));
         }
         
         [Fact]
         public void AddLocationWithoutCapitalLetter_ShouldThrowException()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
+            var route = RouteFactory.BuildRoute(["Waregem", "Gent"], [true, true], [0, 25]);
 
-            Assert.Throws<RouteException>(() => route.AddLocation("waregem", 0, true)); // Verifieren dat de exception gethrowd wordt
+            Assert.Throws<RouteException>(() => route.AddLocation("antwerpen", 0, true)); // Verifieren dat de exception gethrowd wordt
         }
 
         [Fact]
         public void AddNullLocation_ShouldThrowException()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
+            var route = RouteFactory.BuildRoute(["Waregem", "Gent"], [true, true], [0, 25]);
 
             Assert.Throws<RouteException>(() => route.AddLocation(null, 0, true)); // Verifieren dat de exception gethrowd wordt
         }
@@ -75,7 +65,7 @@ namespace TestLabo5
         [Fact]
         public void AddEmptylLocation_ShouldThrowException()
         {
-            var route = RouteFactory.BuildRoute(new List<string>(), new List<bool>(), new List<double>());
+            var route = RouteFactory.BuildRoute(["Waregem", "Gent"], [true, true], [0, 25]);
 
             Assert.Throws<RouteException>(() => route.AddLocation(string.Empty, 0, true)); // Verifieren dat de exception gethrowd wordt
         }

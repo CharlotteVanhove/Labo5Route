@@ -294,5 +294,73 @@ namespace TestLabo5
                 Assert.Equal(expectedSegments[i].location, fullRoute.Item2[i].location);
             }
         }
+
+        [Theory]
+        [InlineData("A", true)]      // Correct: begint met een hoofdletter
+        [InlineData("Location", true)] // Correct: begint met een hoofdletter
+        [InlineData("location", false)] // Fout: begint niet met een hoofdletter
+        [InlineData("", false)]       // Fout: naam is leeg
+        [InlineData("  ", false)]     // Fout: naam is whitespace
+        [InlineData("123", false)]    // Fout: begint met een cijfer
+        [InlineData("A1", true)]      // Correct: begint met een hoofdletter, cijfer is toegestaan na de hoofdletter
+        public void LocationName_ShouldBeValid(string name, bool isValid)
+        {
+            if (isValid)
+            {
+                var location = new SegmentLocation(name, true);
+
+                Assert.Equal(name, location.Name); // Controleer of de naam correct is opgeslagen
+            }
+            else
+            {
+                Assert.Throws<RouteException>(() => new SegmentLocation(name, true)); // Controleer dat er een uitzondering wordt gegooid
+            }
+        }
+
+        [Theory]
+        [InlineData(3, true)]  // Geldige afstand
+        [InlineData(10, true)] // Geldige afstand
+        [InlineData(2, false)] // Ongeldig: gelijk aan minOpgegevenWaarde
+        [InlineData(1, false)] // Ongeldig: kleiner dan minOpgegevenWaarde
+        [InlineData(0, false)] // Ongeldig: kleiner dan minOpgegevenWaarde
+        [InlineData(-5, false)] // Ongeldig: negatief
+        public void Distance_ShouldBeValid(double value, bool isValid)
+        {
+            if (isValid)
+            {
+                var distance = new Distance(value);
+                Assert.Equal(value, distance.AfstandInKM); // Controleer of de afstand correct is opgeslagen
+            }
+            else
+            {
+                Assert.Throws<RouteException>(() => new Distance(value)); // Controleer dat er een uitzondering wordt gegooid
+            }
+        }
+
+        [Fact]
+        public void Route_ShouldContainSpecificStop()
+        {
+            var route = RouteFactory.BuildRoute(["A", "B", "C", "D"], [true, false, true, false], [5.0, 10.0, 15.0, 20.0]);
+
+            // Haal alle stoplocaties op
+            var stops = route.ShowRoute().Item2.Select(segment => segment.location).ToList();
+
+            // Controleer dat "B" niet aanwezig is en "C" wel aanwezig is
+            Assert.Contains("C", stops);  // "C" moet een stop zijn
+            Assert.DoesNotContain("B", stops); // "B" is geen stop
+        }
+
+        [Fact]
+        public void LocationName_ShouldContainSubstring()
+        {
+            var location = new SegmentLocation("Amsterdam", true);
+
+            // Controleer dat "Amster" in de locatienaam zit
+            Assert.Contains("Amster", location.Name);
+
+            // Controleer dat "Rotter" niet in de locatienaam zit
+            Assert.DoesNotContain("Rotter", location.Name);
+        }
+
     }
 }

@@ -100,7 +100,6 @@ namespace TestLabo5
         [Fact]
         public void ShowRouteWithoutNonStops_ShouldReturnFullRoute()
         {
-            //todo nakijken of het enkel stops zijn 
             var route = RouteFactory.BuildRoute(["A", "B", "C", "D", "E"], [true, true, true, true, true], [0, 5, 10, 15, 5]);
 
             var result = route.ShowRoute();

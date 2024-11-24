@@ -302,20 +302,6 @@ namespace Labo5
             // Retourneer de startlocatie samen met de lijst van afstanden en locaties
             return (startLocation, routeSegments);
 
-            ////todo linq klopt nog niet 
-            //var route = _segments
-            //.SkipWhile(s => s.Start.Name != startLocation)
-            //.TakeWhile(s => s.End.Name != endLocation)
-            //.Concat(_segments.Where(s => s.End.Name == endLocation).Take(1)) // Include segment with end location
-            //.Select(s => (s.Distance.AfstandInKM, s.End.Name))
-            //.ToList();
-
-            //if (!route.Any() || route.First().Item2 != startLocation || route.Last().Item2 != endLocation)
-            //{
-            //    throw new RouteException("ShowFullRoute");
-            //}
-
-            //return (startLocation, route);
         }
 
         public List<string> ShowLocations()
